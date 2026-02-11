@@ -11,7 +11,7 @@ if not exist "venv\Scripts\activate.bat" (
 )
 
 call venv\Scripts\activate.bat
-pip install pytest --quiet
+pip install -r requirements-dev.txt --quiet
 pytest tests/ -v
 echo.
 pause

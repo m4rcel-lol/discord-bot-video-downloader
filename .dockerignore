@@ -1,0 +1,14 @@
+.git
+.gitignore
+.env
+.env.example
+*.bat
+*.md
+tests/
+downloads/
+venv/
+.venv/
+__pycache__/
+.pytest_cache/
+.vscode/
+.idea/
