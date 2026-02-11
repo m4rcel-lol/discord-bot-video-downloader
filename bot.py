@@ -130,11 +130,14 @@ def download_direct(url: str, dest_dir: str) -> str | None:
             for chunk in resp.iter_content(chunk_size=8192):
                 size += len(chunk)
                 if size > MAX_FILE_SIZE_BYTES:
-                    f.close()
-                    os.remove(filepath)
-                    logger.warning("Direct download exceeded size limit for %s", url)
-                    return None
+                    break
                 f.write(chunk)
+
+        if size > MAX_FILE_SIZE_BYTES:
+            os.remove(filepath)
+            logger.warning("Direct download exceeded size limit for %s", url)
+            return None
+
         return filepath
     except Exception as exc:
         logger.warning("Direct download failed for %s: %s", url, exc)

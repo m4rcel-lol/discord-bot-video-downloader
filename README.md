@@ -1,6 +1,6 @@
 # Discord Bot – Video Downloader
 
-A Discord bot that downloads videos from virtually any public URL using **yt-dlp** (1 000+ supported sites) with an automatic direct-download fallback.
+A Discord bot that downloads videos from virtually any public URL using **yt-dlp** (1,000+ supported sites) with an automatic direct-download fallback.
 
 ## Features
 
