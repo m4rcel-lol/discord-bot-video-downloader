@@ -138,15 +138,11 @@ class TestDownloadWithYtdlp:
         mock_ydl.__enter__ = mock.MagicMock(return_value=mock_ydl)
         mock_ydl.__exit__ = mock.MagicMock(return_value=False)
 
-        original = bot_module._ffmpeg_location
-        try:
-            bot_module._ffmpeg_location = "/usr/bin/ffmpeg"
-            with mock.patch("bot.yt_dlp.YoutubeDL", return_value=mock_ydl) as mock_cls:
-                download_with_ytdlp("https://example.com/v", str(tmp_path))
-            opts = mock_cls.call_args[0][0]
-            assert opts["ffmpeg_location"] == "/usr/bin/ffmpeg"
-        finally:
-            bot_module._ffmpeg_location = original
+        with mock.patch.object(bot_module, "_ffmpeg_location", "/usr/bin/ffmpeg"), \
+             mock.patch("bot.yt_dlp.YoutubeDL", return_value=mock_ydl) as mock_cls:
+            download_with_ytdlp("https://example.com/v", str(tmp_path))
+        opts = mock_cls.call_args[0][0]
+        assert opts["ffmpeg_location"] == "/usr/bin/ffmpeg"
 
 
 # ---------------------------------------------------------------------------
