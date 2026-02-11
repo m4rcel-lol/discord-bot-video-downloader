@@ -32,6 +32,17 @@ logging.basicConfig(
 )
 logger = logging.getLogger("video-bot")
 
+# Cache the detected ffmpeg path at module level (set during main()).
+_ffmpeg_location: str | None = None
+
+
+def check_ffmpeg() -> str | None:
+    """Return the path to ffmpeg if found, else None.
+
+    Uses :func:`shutil.which` which works cross-platform (including Windows).
+    """
+    return shutil.which("ffmpeg")
+
 
 def _sanitize_filename(name: str) -> str:
     """Remove unsafe characters from a filename, keeping it short."""
@@ -86,6 +97,9 @@ def download_with_ytdlp(url: str, dest_dir: str) -> str | None:
         "socket_timeout": 30,
         "retries": 3,
     }
+
+    if _ffmpeg_location:
+        ydl_opts["ffmpeg_location"] = _ffmpeg_location
 
     try:
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
@@ -212,8 +226,17 @@ async def on_ready() -> None:
 
 
 def main() -> None:
+    global _ffmpeg_location
     if not DISCORD_TOKEN:
         raise SystemExit("DISCORD_TOKEN environment variable is not set. See .env.example.")
+    _ffmpeg_location = check_ffmpeg()
+    if _ffmpeg_location:
+        logger.info("ffmpeg found at: %s", _ffmpeg_location)
+    else:
+        logger.warning(
+            "ffmpeg not found on PATH. Video merging/conversion may fail. "
+            "Install ffmpeg and make sure it is on your PATH."
+        )
     os.makedirs(DOWNLOAD_DIR, exist_ok=True)
     bot.run(DISCORD_TOKEN, log_handler=None)
 
