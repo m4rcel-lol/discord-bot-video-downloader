@@ -10,10 +10,25 @@ from bot import (
     _has_video_extension,
     _is_valid_url,
     _sanitize_filename,
+    check_ffmpeg,
     download_direct,
     download_with_ytdlp,
     download_video,
 )
+
+
+# ---------------------------------------------------------------------------
+# check_ffmpeg
+# ---------------------------------------------------------------------------
+
+class TestCheckFfmpeg:
+    def test_returns_path_when_found(self):
+        with mock.patch("bot.shutil.which", return_value="/usr/bin/ffmpeg"):
+            assert check_ffmpeg() == "/usr/bin/ffmpeg"
+
+    def test_returns_none_when_not_found(self):
+        with mock.patch("bot.shutil.which", return_value=None):
+            assert check_ffmpeg() is None
 
 
 # ---------------------------------------------------------------------------
@@ -109,6 +124,29 @@ class TestDownloadWithYtdlp:
         with mock.patch("bot.yt_dlp.YoutubeDL", side_effect=Exception("fail")):
             result = download_with_ytdlp("https://example.com/v", str(tmp_path))
         assert result is None
+
+    def test_passes_ffmpeg_location_when_set(self, tmp_path):
+        import bot as bot_module
+
+        fake_file = tmp_path / "My Video.mp4"
+        fake_file.write_bytes(b"\x00" * 100)
+
+        fake_info = {"title": "My Video", "ext": "mp4"}
+        mock_ydl = mock.MagicMock()
+        mock_ydl.extract_info.return_value = fake_info
+        mock_ydl.prepare_filename.return_value = str(fake_file)
+        mock_ydl.__enter__ = mock.MagicMock(return_value=mock_ydl)
+        mock_ydl.__exit__ = mock.MagicMock(return_value=False)
+
+        original = bot_module._ffmpeg_location
+        try:
+            bot_module._ffmpeg_location = "/usr/bin/ffmpeg"
+            with mock.patch("bot.yt_dlp.YoutubeDL", return_value=mock_ydl) as mock_cls:
+                download_with_ytdlp("https://example.com/v", str(tmp_path))
+            opts = mock_cls.call_args[0][0]
+            assert opts["ffmpeg_location"] == "/usr/bin/ffmpeg"
+        finally:
+            bot_module._ffmpeg_location = original
 
 
 # ---------------------------------------------------------------------------
