@@ -14,7 +14,40 @@ A Discord bot that downloads videos from virtually any public URL using **yt-dlp
 - Python 3.11+
 - A Discord bot token ([create one here](https://discord.com/developers/applications))
 
-## Setup
+---
+
+## Windows Setup (Testing)
+
+Use the provided batch scripts to get started quickly on Windows:
+
+```bat
+REM 1. Clone the repository
+git clone https://github.com/m4rcel-lol/discord-bot-video-downloader.git
+cd discord-bot-video-downloader
+
+REM 2. Run the setup script (creates venv, installs deps, creates .env)
+setup.bat
+
+REM 3. Edit .env and set your DISCORD_TOKEN
+
+REM 4. Start the bot
+start.bat
+
+REM 5. Run tests
+run_tests.bat
+```
+
+### Available batch scripts
+
+| Script | Description |
+|---|---|
+| `setup.bat` | Creates a virtual environment, installs dependencies, and copies `.env.example` to `.env` |
+| `start.bat` | Activates the venv and runs the bot |
+| `run_tests.bat` | Activates the venv and runs the test suite with pytest |
+
+---
+
+## Linux / macOS Setup
 
 ```bash
 # 1. Clone the repository
@@ -23,7 +56,7 @@ cd discord-bot-video-downloader
 
 # 2. Create a virtual environment and install dependencies
 python -m venv venv
-source venv/bin/activate   # Windows: venv\Scripts\activate
+source venv/bin/activate
 pip install -r requirements.txt
 
 # 3. Configure
@@ -32,6 +65,38 @@ cp .env.example .env
 
 # 4. Run the bot
 python bot.py
+```
+
+---
+
+## Docker Deployment (Alpine Linux)
+
+Deploy to an Alpine Linux server using Docker:
+
+```bash
+# 1. Clone the repository on your server
+git clone https://github.com/m4rcel-lol/discord-bot-video-downloader.git
+cd discord-bot-video-downloader
+
+# 2. Configure
+cp .env.example .env
+# Edit .env and set DISCORD_TOKEN
+
+# 3. Build and start with Docker Compose
+docker compose up -d
+
+# View logs
+docker compose logs -f
+
+# Stop the bot
+docker compose down
+```
+
+Or build and run manually:
+
+```bash
+docker build -t discord-video-bot .
+docker run -d --env-file .env --name discord-video-bot discord-video-bot
 ```
 
 ## Configuration
